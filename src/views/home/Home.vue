@@ -1,93 +1,15 @@
 <template>
   <div id="home">
     <nav-ber class="nav-bar"><div slot="center">购物街</div></nav-ber>
-    <home-swiper :banners="banners"/>
-    <RecommendViews :recommends="recommends"/>
-    <feature-view/>
-    <tab-control :title="['流行','新款','精选']" class="tab-control" @tabClick="tabClick"/>
-    <goods-list :goodslist="goods[currentType].list"/>
-    <ul>
-      <li>1列表</li>
-      <li>2列表</li>
-      <li>3列表</li>
-      <li>4列表</li>
-      <li>5列表</li>
-      <li>6列表</li>
-      <li>7列表</li>
-      <li>8列表</li>
-      <li>9列表</li>
-      <li>10列表</li>
-      <li>11列表</li>
-      <li>12列表</li>
-      <li>13列表</li>
-      <li>14列表</li>
-      <li>15列表</li>
-      <li>16列表</li>
-      <li>17列表</li>
-      <li>18列表</li>
-      <li>19列表</li>
-      <li>20列表</li>
-      <li>1列表</li>
-      <li>2列表</li>
-      <li>3列表</li>
-      <li>4列表</li>
-      <li>5列表</li>
-      <li>6列表</li>
-      <li>7列表</li>
-      <li>8列表</li>
-      <li>9列表</li>
-      <li>10列表</li>
-      <li>11列表</li>
-      <li>12列表</li>
-      <li>13列表</li>
-      <li>14列表</li>
-      <li>15列表</li>
-      <li>16列表</li>
-      <li>17列表</li>
-      <li>18列表</li>
-      <li>19列表</li>
-      <li>20列表</li>
-      <li>1列表</li>
-      <li>2列表</li>
-      <li>3列表</li>
-      <li>4列表</li>
-      <li>5列表</li>
-      <li>6列表</li>
-      <li>7列表</li>
-      <li>8列表</li>
-      <li>9列表</li>
-      <li>10列表</li>
-      <li>11列表</li>
-      <li>12列表</li>
-      <li>13列表</li>
-      <li>14列表</li>
-      <li>15列表</li>
-      <li>16列表</li>
-      <li>17列表</li>
-      <li>18列表</li>
-      <li>19列表</li>
-      <li>20列表</li>
-      <li>1列表</li>
-      <li>2列表</li>
-      <li>3列表</li>
-      <li>4列表</li>
-      <li>5列表</li>
-      <li>6列表</li>
-      <li>7列表</li>
-      <li>8列表</li>
-      <li>9列表</li>
-      <li>10列表</li>
-      <li>11列表</li>
-      <li>12列表</li>
-      <li>13列表</li>
-      <li>14列表</li>
-      <li>15列表</li>
-      <li>16列表</li>
-      <li>17列表</li>
-      <li>18列表</li>
-      <li>19列表</li>
-      <li>20列表</li>
-    </ul>
+    <tab-control :title="['流行','新款','精选']" class="tab-control" @tabClick="tabClick" ref="tabControl2" v-show="isShowTap"/>
+   <scroll class="content" ref="back" :probeType="3" @ContentPosition="ContentPosition" :pullUpLoad="true" @pullingUp="pullingUp">
+     <home-swiper :banners="banners" @SwiperImagesLoad="SwiperImagesLoad"/>
+     <RecommendViews :recommends="recommends"/>
+     <feature-view/>
+     <tab-control :title="['流行','新款','精选']" class="tab-control" @tabClick="tabClick" ref="tabControl"/>
+     <goods-list :goodslist="goods[currentType].list"/>
+   </scroll>
+    <back-top @click.native="BackClick" v-show="isShow"></back-top>
   </div>
 </template>
 
@@ -101,13 +23,13 @@ import RecommendViews from "./childcomponents/RecommendViews";
 import FeatureView from "@/views/home/childcomponents/featureView";
 import GoodsList from "@/components/content/goodslist/GoodsList";
 import GoodsListItem from "@/components/content/goodslist/GoodsListItem";
+import scroll from "@/components/common/scroll/scroll";
+import BackTop from "@/components/content/BackTop/BackTop";
 
 import {getHomeMultidata,getHomeGoods} from "@/network/home";
-
-
-
-
-
+//常用工具
+import {debounce} from "@/common/utils";
+import {itemListMixin} from "@/common/mixin";
 
 export default {
 name: "home",
@@ -120,9 +42,14 @@ name: "home",
         'new':{page:0, list:[]},
         'sell':{page:0, list:[]},
       },
-      currentType:'pop'
+      currentType:'pop',
+      isShow:false,
+      isShowTap:false,
+      TabControlOffsetTop:0,
+      saveY:0
     }
   },
+  mixins:[itemListMixin],
   components:{
     NavBer,
     TabControl,
@@ -130,13 +57,15 @@ name: "home",
     RecommendViews,
     FeatureView,
     GoodsList,
-    GoodsListItem
+    GoodsListItem,
+    scroll,
+    BackTop
   },
   methods:{
   /*
   * 事件监听相关方法
   * */
-  tabClick(index){
+    tabClick(index){
     switch (index) {
       case 0:
         this.currentType='pop'
@@ -148,7 +77,31 @@ name: "home",
         this.currentType='sell'
           break
     }
+    /*同步当前index,item*/
+    this.$refs.tabControl.currentIndex=index;
+    this.$refs.tabControl2.currentIndex=index;
   },
+    BackClick() {
+      this.$refs.back.ScrollTo(0, 0)
+    },
+    ContentPosition(position){
+      // console.log(position.y)
+      this.isShow = (-position.y) > 1000 ? true : false
+
+
+
+
+
+      this.isShowTap = (-position.y) > this.TabControlOffsetTop
+    },
+    pullingUp(){
+      this.getHomeGoods(this.currentType)
+    },
+
+    SwiperImagesLoad(){
+      //tabControl offsetTop高度
+      this.TabControlOffsetTop=this.$refs.tabControl.$el.offsetTop
+    },
     /*
     网络请求封装的函数
     */
@@ -165,35 +118,63 @@ name: "home",
         console.log(res)
         this.goods[type].list.push(...res.data.data.list)
         this.goods[type].page+=1
+        //数据请求完成之后放行下次下拉
+        this.$refs.back.finishPullUp()
       })
-
+    },
+    go(){
+      this.$router.go(0)
     }
   },
+  /*生命周期函数*/
   created(){
   this.getHomeMultidata();
   this.getHomeGoods('pop');
   this.getHomeGoods('new');
   this.getHomeGoods('sell');
+  },
+  /*组件加载完成之后..*/
+  mounted(){
+
+  },
+
+  destroyed() {
+    console.log('111');
+  },
+  /*被 keep-alive 缓存的组件停用时调用*/
+  activated() {
+    this.$refs.back.refresh()
+    this.$refs.back.ScrollTo(0,this.saveY,0)
+  },
+  deactivated() {
+    this.saveY=this.$refs.back.getScrollY()
+    this.$bus.$off('itemImagesload',()=>{
+      refresh()
+    })
+    // console.log(this.$refs.back.scroll.y);
   }
 }
 </script>
 
 <style scoped>
 #home{
-  padding-top: 44px;
+  height: 100vh;
+  position: relative;
 }
 .nav-bar{
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 9;
   color: #fff;
   background: var(--color-tint);
 }
 .tab-control{
-  position: sticky;
-  top: 44px;
+  position: relative;
   z-index: 9;
+}
+.content{
+  position: absolute;
+  overflow: hidden;
+  top: 44px;
+  bottom: 49px;
+  left: 0;
+  right: 0;
 }
 </style>

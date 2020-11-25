@@ -1,13 +1,12 @@
 <template>
 <div class="tab-control">
   <div v-for="(item,index) in title" class="tab-item"
-       :class="{active: currentIndex===index}"
+       :class="{active: currentIndex === index}"
        @click="ItemClick(index)">
     <span>{{item}}</span>
   </div>
 </div>
 </template>
-
 <script>
 export default {
   name: "TabControl",

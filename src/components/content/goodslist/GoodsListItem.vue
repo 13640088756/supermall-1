@@ -1,7 +1,7 @@
 <template>
-  <div class="goods-list-item">
+  <div class="goods-list-item" @click="itemClick">
     <div>
-      <img :src="goodsitem.show.img" alt="">
+      <img :src="showImage" alt="" @load="itemImagesload">
      <div class="goods-info">
        <p>{{goodsitem.title}}</p>
        <span class="price">{{goodsitem.price}}</span>
@@ -21,7 +21,22 @@ export default {
       }
     }
   },
-name: "GoodsListItem"
+name: "GoodsListItem",
+  methods:{
+    itemImagesload(){
+      this.$bus.$emit('itemImagesload')
+    },
+    itemClick(){
+      this.$router.push('/detail/'+this.goodsitem.iid)
+      console.log(this.goodsitem.iid);
+    }
+  },
+  computed:{
+    showImage(){
+      return this.goodsitem.image || this.goodsitem.show.img
+    }
+  }
+
 }
 </script>
 
