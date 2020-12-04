@@ -10,7 +10,8 @@
       <detail-comment :commentInfo="commentInfo" ref="comment"/>
       <goods-list :goodslist="recommend" ref="recommend"/>
     </scroll>
-    <detail-bottom-bar/>
+    <back-top @click.native="BackClick" v-show="isShow"></back-top>
+    <detail-bottom-bar @addToCart="addtoCart"/>
   </div>
 </template>
 
@@ -29,6 +30,9 @@ import DetailParam from "@/views/detail/childcomponents/DetailParam";
 import DetailComment from "@/views/detail/childcomponents/DetailComment";
 import DetailBottomBar from "@/views/detail/childcomponents/DetailBottomBar";
 import {itemListMixin} from "@/common/mixin";
+//工具
+import {backTopMixin} from "@/common/mixin";
+
 export default {
 name: "Detail",
   components: {
@@ -57,7 +61,7 @@ name: "Detail",
       currentIndex:0
     }
   },
-  mixins:[itemListMixin],
+  mixins:[itemListMixin,backTopMixin],
   methods:{
     // 刷新scroll高度
     itemimages(){
@@ -82,6 +86,9 @@ name: "Detail",
     },
     // 监听滚动
     ContentPosition(position){
+      //backTop 动态显示隐藏
+      this.isShow = (-position.y) > 1000
+
       const positionY=-position.y
       // position.y 在 0- 790 之间 index为0
       // position.y 在 =790-7116 之间 index为1
@@ -105,6 +112,17 @@ name: "Detail",
           this.$refs.nav.currentIndex = this.currentIndex = i
         }
       }
+    },
+    // 获取购物车相关数据
+    addtoCart(){
+      const product={}
+      product.title = this.goods.title;
+      product.desc = this.goods.desc;
+      product.images = this.topImages[0];
+      product.Price = this.goods.realPrice;
+      product.iid = this.iid;
+      // this.$store.commit('addCart',product)
+      this.$store.dispatch('addCart',product)
     }
   },
 

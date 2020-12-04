@@ -24,12 +24,12 @@ import FeatureView from "@/views/home/childcomponents/featureView";
 import GoodsList from "@/components/content/goodslist/GoodsList";
 import GoodsListItem from "@/components/content/goodslist/GoodsListItem";
 import scroll from "@/components/common/scroll/scroll";
-import BackTop from "@/components/content/BackTop/BackTop";
+// import BackTop from "@/components/content/BackTop/BackTop";
 
 import {getHomeMultidata,getHomeGoods} from "@/network/home";
 //常用工具
-import {debounce} from "@/common/utils";
-import {itemListMixin} from "@/common/mixin";
+// import {debounce} from "@/common/utils";
+import {itemListMixin,backTopMixin} from "@/common/mixin";
 
 export default {
 name: "home",
@@ -43,13 +43,13 @@ name: "home",
         'sell':{page:0, list:[]},
       },
       currentType:'pop',
-      isShow:false,
+      // isShow:false,
       isShowTap:false,
       TabControlOffsetTop:0,
       saveY:0
     }
   },
-  mixins:[itemListMixin],
+  mixins:[itemListMixin,backTopMixin],
   components:{
     NavBer,
     TabControl,
@@ -59,7 +59,7 @@ name: "home",
     GoodsList,
     GoodsListItem,
     scroll,
-    BackTop
+
   },
   methods:{
   /*
@@ -81,17 +81,16 @@ name: "home",
     this.$refs.tabControl.currentIndex=index;
     this.$refs.tabControl2.currentIndex=index;
   },
-    BackClick() {
-      this.$refs.back.ScrollTo(0, 0)
-    },
+    // 已经抽离到mixin BackClick() {
+    //   this.$refs.back.ScrollTo(0, 0)
+    // },
+    /*监听滚动
+    * */
     ContentPosition(position){
       // console.log(position.y)
-      this.isShow = (-position.y) > 1000 ? true : false
-
-
-
-
-
+      //backTop 动态显示隐藏
+      this.isShow = (-position.y) > 1000
+      //导航栏上滑停留
       this.isShowTap = (-position.y) > this.TabControlOffsetTop
     },
     pullingUp(){
@@ -122,9 +121,6 @@ name: "home",
         this.$refs.back.finishPullUp()
       })
     },
-    go(){
-      this.$router.go(0)
-    }
   },
   /*生命周期函数*/
   created(){
@@ -141,11 +137,12 @@ name: "home",
   destroyed() {
     console.log('111');
   },
-  /*被 keep-alive 缓存的组件停用时调用*/
+  /*被 keep-alive 缓存的组件激活时调用*/
   activated() {
     this.$refs.back.refresh()
     this.$refs.back.ScrollTo(0,this.saveY,0)
   },
+  /*被 keep-alive 缓存的组件停用时调用*/
   deactivated() {
     this.saveY=this.$refs.back.getScrollY()
     this.$bus.$off('itemImagesload',()=>{
