@@ -35,7 +35,7 @@ name: "toast",
   left: 50%;
   transform: translate(-50%,-50%);
   background: rgba(0,0,0,0.8);
-  border-radius: 16px;
+  border-radius: 30px;
   padding: 10px 20px;
   color: #ffffff;
   font-weight: 500;
