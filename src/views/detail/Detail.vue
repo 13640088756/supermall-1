@@ -11,11 +11,14 @@
       <goods-list :goodslist="recommend" ref="recommend"/>
     </scroll>
     <back-top @click.native="BackClick" v-show="isShow"></back-top>
+<!--    底部加入购物车-->
     <detail-bottom-bar @addToCart="addtoCart"/>
+<!--    <toast :message="message" :showText="showText"></toast>-->
   </div>
 </template>
 
 <script>
+import toast from "@/components/common/toast/toast";
 import DetailNavBer from "@/views/detail/childcomponents/DetailNavBer";
 /*scroll*/
 import scroll from "@/components/common/scroll/scroll";
@@ -33,6 +36,7 @@ import {itemListMixin} from "@/common/mixin";
 //工具
 import {backTopMixin} from "@/common/mixin";
 
+import {mapActions} from "vuex"
 export default {
 name: "Detail",
   components: {
@@ -45,7 +49,8 @@ name: "Detail",
     DetailParam,
     DetailComment,
     GoodsList,
-    DetailBottomBar
+    DetailBottomBar,
+    toast,
   },
   data(){
     return{
@@ -58,11 +63,14 @@ name: "Detail",
       commentInfo:{},
       recommend:[],
       themeTop:[0,1000,2000,3000],
-      currentIndex:0
+      currentIndex:0,
+      message:'哈哈哈',
+      showText:false,
     }
   },
   mixins:[itemListMixin,backTopMixin],
   methods:{
+    ...mapActions(['addCart']),
     // 刷新scroll高度
     itemimages(){
       this.$refs.back.refresh()
@@ -106,15 +114,17 @@ name: "Detail",
         }
       }*/
       /*hack方法*/
-      //4
-      for(let i=0; i<length-1; i++){
-        if(this.currentIndex !==i && (positionY >= this.themeTop[i] && positionY < this.themeTop[i+1])){
+      for (let i=0; i<length-1; i++){
+        // 节流
+        if( this.currentIndex !=i &&(positionY >= this.themeTop[i] && positionY < this.themeTop[i+1])){
           this.$refs.nav.currentIndex = this.currentIndex = i
         }
       }
+
     },
     // 获取购物车相关数据
     addtoCart(){
+      // 整合数据
       const product={}
       product.title = this.goods.title;
       product.desc = this.goods.desc;
@@ -122,7 +132,12 @@ name: "Detail",
       product.Price = this.goods.realPrice;
       product.iid = this.iid;
       // this.$store.commit('addCart',product)
-      this.$store.dispatch('addCart',product)
+      // 1.mapGetters方法
+      this.addCart(product).then((res)=>{
+        this.$toast.showToast(res,1000)
+      })
+      /*2. 正常方法
+      this.$store.dispatch('addCart',product)*/
     }
   },
 

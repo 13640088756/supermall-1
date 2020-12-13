@@ -29,6 +29,11 @@ name: "DetailGoodsInfo",
       imagesLenght:0
     }
   },
+  watch:{
+    detailInfo(){
+      this.imagesLenght = this.detailInfo.list.length
+    }
+  },
   methods:{
     imgLoad(){
       // 节流操作
@@ -37,11 +42,7 @@ name: "DetailGoodsInfo",
       }
     }
   },
-  watch:{
-    detailInfo(){
-      this.imagesLenght = this.detailInfo.list.length
-    }
-  }
+
 }
 </script>
 

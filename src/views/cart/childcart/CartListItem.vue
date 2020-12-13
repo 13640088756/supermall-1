@@ -11,7 +11,7 @@
       <div class="info-desc">{{itemInfo.desc}}</div>
       <div class="info-bottom">
         <div class="info-price left">￥{{itemInfo.Price}}</div>
-        <div class="info-count right">x{{itemInfo.count}}</div>
+        <div class="info-count right">×{{itemInfo.count}}</div>
       </div>
     </div>
   </div>

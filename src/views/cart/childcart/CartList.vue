@@ -4,7 +4,6 @@
       <cart-list-item v-for="(item,index) in cartList" :itemInfo="item" :key="index"></cart-list-item>
     </scroll>
   </div>
-
 </template>
 
 <script>

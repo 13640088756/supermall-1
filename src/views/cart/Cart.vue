@@ -1,7 +1,10 @@
 <template>
   <div class="cart">
+<!--    top-->
     <nav-ber class="bg"><div slot="center">购物车({{cartLength}})</div></nav-ber>
+<!--    购物车列表-->
     <cart-list/>
+<!--    工具栏-->
     <cart-toolbar/>
   </div>
 </template>
